@@ -1,6 +1,7 @@
 import matplotlib.pylab as plt
 import cv2
 import numpy as np
+import cannytest
 
 cascade_src = 'cars.xml'
 video_src = 'roadvidtimelapse.mp4'
@@ -10,8 +11,8 @@ fgbg = cv2.createBackgroundSubtractorMOG2()
 
 def region_of_interest(img, vertices):
     mask = np.zeros_like(img)
-    match_mask_color = 255
-    cv2.fillPoly(mask, vertices, match_mask_color)
+    match_mask_color = 1
+    cv2.fillConvexPoly(mask, vertices, match_mask_color)
     masked_image = cv2.bitwise_and(img, mask)
     return masked_image
 
@@ -77,12 +78,13 @@ def process(image):
 
     height, width = image.shape[:2]
     
-    # 转换为灰度图并进行高斯模糊
+    #  转换为灰度图并进行高斯模糊
     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     blurred_image = cv2.GaussianBlur(gray_image, (5, 5), 0)
     
-    # Canny 边缘检测
+    #  Canny 边缘检测
     canny_image = cv2.Canny(blurred_image, 50, 150)
+    # canny_image = cannytest.func(image) 我自己写的canny算法计算起来太慢了，希望能够改进之后直接调用
     kernel = np.ones((5, 5), np.uint8)
     dilated_canny = cv2.dilate(canny_image, kernel, iterations=1)
 
